@@ -1,0 +1,56 @@
+# Layer 1: Bassline (using built-in synth :fm)
+define :bassline do |note, duration|
+  use_synth :fm
+  play note, sustain: duration, release: 0.2, amp: 0.8
+end
+
+# Layer 2: Chords (using custom sample)
+sample_path = "C:/Users/Lyneth_Flores/Downloads/Custom song 2 (or nah) 1.wav"
+chord_sequence = [:c4, :e4, :g4, :b4]
+
+define :play_chords do
+  use_sample_defaults amp: 0.6
+  with_fx :reverb, room: 0.7 do
+    chord_sequence.each do |note|
+      sample sample_path, rate: 0.9, pitch: note
+      sleep 0.5
+    end
+  end
+end
+
+# Layer 3: Melody (using built-in synth :pluck)
+define :melody do |note, duration|
+  use_synth :bass_foundation
+  play note, sustain: duration, release: 0.2, amp: 0.7
+end
+
+# Main Song Loop
+live_loop :custom_song do
+  # Layer 1 (Bassline)
+  7.times do
+    bassline :c2, 1
+    sleep 1
+  end
+  
+  # Add a vinyl rewind sound effect
+  sample :vinyl_rewind
+  
+  # Layer 2 (Chords) - Start after a short delay
+  in_thread do
+    sleep 3
+    play_chords
+  end
+  
+  # Layer 3 (Melody) - Start after a longer delay
+  in_thread do
+    sleep 16
+    melody :e5, 0.5
+    melody :d5, 0.5
+    melody :c5, 0.5
+    melody :b4, 0.5
+  end
+  
+  # Stop all layers at the end of the song
+  sleep 24  # Adjust the duration as needed
+  stop
+end
